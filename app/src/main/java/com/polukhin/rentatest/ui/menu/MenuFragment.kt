@@ -14,9 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.polukhin.rentatest.R
 import com.polukhin.rentatest.di.app.App
+import com.polukhin.rentatest.model.MenuRepository
 import com.polukhin.rentatest.ui.ConnectionNetwork
 import com.polukhin.rentatest.ui.MenuContract
 import com.polukhin.rentatest.ui.UserRecyclerAdapter
+import com.polukhin.rentatest.viewmodel.menu.MenuViewModel
+import com.polukhin.rentatest.viewmodel.menu.MenuViewModelFactory
 import javax.inject.Inject
 
 class MenuFragment : Fragment(), MenuContract.IView {

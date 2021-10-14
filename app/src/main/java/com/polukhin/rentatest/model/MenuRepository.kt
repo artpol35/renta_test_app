@@ -1,4 +1,4 @@
-package com.polukhin.rentatest.ui.menu
+package com.polukhin.rentatest.model
 
 import com.polukhin.randevutest.di.retrofit.RetrofitAPI
 import com.polukhin.rentatest.db.UserDao

@@ -1,7 +1,8 @@
-package com.polukhin.rentatest.ui.menu
+package com.polukhin.rentatest.viewmodel.menu
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.polukhin.rentatest.model.MenuRepository
 import com.polukhin.rentatest.ui.MenuContract
 
 class MenuViewModelFactory(

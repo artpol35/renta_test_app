@@ -1,25 +1,31 @@
-package com.polukhin.rentatest.ui.menu
+package com.polukhin.rentatest.viewmodel.menu
 
 import android.util.Log
-import android.view.View
 import android.widget.ProgressBar
-import android.widget.Toast
-import com.polukhin.rentatest.R
-import com.polukhin.rentatest.ui.ConnectionNetwork
-import com.polukhin.rentatest.ui.UserRecyclerAdapter
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.polukhin.rentatest.model.MenuRepository
+import com.polukhin.rentatest.model.User
+import com.polukhin.rentatest.ui.MenuContract
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-
-class MenuManager(
+class MenuViewModel(
     private val repository: MenuRepository,
-    private val adapter: UserRecyclerAdapter,
-    private val view: View
-) {
-    
-    fun getData() {
-        if (ConnectionNetwork.providesConnectionResult(view.context)) {
+    private val viewContract: MenuContract.IView
+) : ViewModel() {
+
+    private var users: MutableLiveData<List<User>> = MutableLiveData()
+
+    fun getUsers(): LiveData<List<User>> {
+        getData()
+        return users
+    }
+
+    private fun getData() {
+        if (viewContract.checkConnection()) {
             getNetworkData()
         } else {
             getLocalData()
@@ -28,21 +34,20 @@ class MenuManager(
 
     private fun getNetworkData() {
 
-        val progressBar: ProgressBar = view.findViewById(R.id.menu_progress_bar)
-        progressBar.visibility = ProgressBar.VISIBLE
+        viewContract.changeStateProgressBar(ProgressBar.VISIBLE)
 
         val disposable1 = repository.getUsersNetwork()
             .delay(1, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ response ->
-                progressBar.visibility = ProgressBar.INVISIBLE
-                adapter.setData(response.data)
+                viewContract.changeStateProgressBar(ProgressBar.INVISIBLE)
+                users.value = response.data
             }, { error ->
                 Log.d("MENU_MANAGER", "Error at upload data from server")
                 Log.d("MENU_MANAGER", error.toString())
 
-                Toast.makeText(view.context, "Error at upload data", Toast.LENGTH_SHORT).show()
+                viewContract.toastInfo("Error at upload data")
             })
 
         val disposable2 = repository.getUsersNetwork()
@@ -63,12 +68,12 @@ class MenuManager(
         val disposable3 = repository.getUserLocal().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ users ->
-                adapter.setData(users)
+                this.users.value = users
             }, { er ->
                 Log.d("MENU_MANAGER", "Error get data local database")
                 Log.d("MENU_MANAGER", er.toString())
 
-                Toast.makeText(view.context, "Error at upload data", Toast.LENGTH_SHORT).show()
+                viewContract.toastInfo("Error at upload data")
             })
 
         Log.d("MENU_MANAGER", "Work with local data")
